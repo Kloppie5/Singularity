@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <script>
+      var inventory = {
+        mysteryLiquid: 0,
+        clay: 0,
+      };
+      var generators = {
+        clayGenerator: {
+          amount: 0,
+          cost: 0,
+          production: 1
+        }
+      };
+
+      function log(message) {
+        var console = document.getElementById("console");
+        var row = console.insertRow(0);
+        var cell = row.insertCell(0);
+        cell.innerHTML = message;
+        if (console.rows.length > 10) {
+          console.deleteRow(10);
+        }
+      }
+
+      function buyGenerator(generator) {
+        if (inventory.mysteryLiquid >= generators[generator].cost) {
+          inventory.mysteryLiquid -= generators[generator].cost;
+          generators[generator].amount++;
+          generators[generator].cost = Math.round(1.1 * generators[generator].cost);
+          document.getElementById("buy-" + generator).innerHTML = "Cost: " + generators[generator].cost;
+          document.getElementById("amount-" + generator).innerHTML = generators[generator].amount;
+          log("Bought a " + generator + " for " + generators[generator].cost + " mystery liquid.");
+        }
+      }
+
+      setInterval(function() {
+        inventory.clay += generators.clayGenerator.amount * generators.clayGenerator.production;
+        document.getElementById("amount-clay").innerHTML = inventory.clay;
+      }, 100);
+
+    </script>
+  </head>
+  <body>
+    <div class="container" style="color:#001780; font-family: Calibri; text-align:center">
+      <h1 style="text-align:center">Singularity</h1>
+
+      <div style="color:#000000">You have access to infinite amounts of mystery liquid.</div>
+      <hr>
+      <p>
+        <div style="color:#000000">You have nothing else.</div>
+      </p>
+
+      <h3>Inventory</h3>
+      <table style="margin-left:auto; margin-right:auto">
+        <tr>
+            <td>Clay <small id="amount-clay">0</small></td>
+            <td>Clay Generator <small id="amount-clayGenerator">0</small></td>
+            <td><button id="buy-clayGenerator" onclick="buyGenerator('clayGenerator')">Cost: Free</button></td>
+        <tr>
+      </table>
+
+      <h4>Changelog</h4>
+      <table id="changelog">
+        <tr>
+          <td>0.0.2303251704</td>
+          <td>Hello again~</td>
+        </tr>
+      </table>
+
+      <h4>Console</h4>
+      <table id="console"></table>
+    </div>
+  </body>
+</html>

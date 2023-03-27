@@ -38,7 +38,7 @@
         }
         async run () {
           for (var i = 0; i < this.lines; i++) {
-            await lore("");
+            await lore("...");
           }
         }
       }
@@ -66,11 +66,48 @@
           new Lore("SNAA: This can obviously have huge economical benefits, so you are tasked with experimenting with the liquid."),
           new Lore("SNAA: In order to prevent information about this from being leaked, you have been given the absolute bare minimum of resources to start your work."),
           new Lore("SNAA: I am equipped with a small photovoltaic system that will provide you with the energy you need to get started."),
-          new Spacer(1),
-          new Lore("SNAA: I was informed that repeatedly reminding you that you are \"easily replaceable\" if your progress is not satisfactory is a good way to keep you motivated.")
+        ],
+        // Tier 1
+        "limestoneHelp": [
+          new Lore("Limestone is a common type of sedimentary rock on Sol-3."),
+          new Lore("It is composed of mostly calcium carbonate (CaCO3), giving access to important construction materials such as mortal and glass.")
+        ],
+        "sandstoneHelp": [
+          new Lore("Sandstone is a common type of sedimentary rock on Sol-3."),
+          new Lore("Consisting mostly of quartz, it gives easy access to silica.")
+        ],
+        "shaleHelp": [
+          new Lore("Shale is the most common sedimentary rock on Sol-3."),
+          new Lore("Fine-grained and consisting of many thin layers, shale primarily consists of clay minerals and quartz."),
+        ],
+        "waterHelp": [
+          new Lore("Water is the most important resource in the universe."),
+          new Lore("The small, polar structure gives water incredible properties, like making it one of the best solvents.")
+        ],
+        "woodHelp": [
+          new Lore("Wood is used to refer to carbon-based polymer materials."),
+          new Lore("It is said that large parts of Sol-3 used to be covered in wood based organisms called trees."),
+        ],
+
+        // Tier 2
+        "silicaSandHelp": [
+          new Lore("Silica sand is a silica rich granular material.")
+        ],
+        "crushedShaleHelp": [
+          new Lore("Crushed shale can be used to create low quality clay for basic construction.")
+        ],
+
+        // Tier 3
+        "clayHelp": [
+          new Lore("Clay is a fine-grained material that develops plasticity when wet, and becomes hard and brittle upon drying or firing."),
+          new Lore("This makes it a good material for rudimentary construction.")
         ]
       }
       async function triggerEvent ( event ) {
+        if ( ! events[event] ) {
+          log("Unknown event \"" + event + "\"", "red");
+          return;
+        }
         log("Triggered event: " + event);
         for (var i = 0; i < events[event].length; i++) {
           await events[event][i].run();
@@ -93,11 +130,12 @@
         await new Promise(resolve => setTimeout(resolve, 10));
         await type_writer(element, message.substring(1));
       }
-      function log ( message ) {
+      function log ( message, color = "black" ) {
         var console = document.getElementById("console");
         var row = console.insertRow(-1);
         var cell = row.insertCell(-1);
         cell.innerHTML = message;
+        cell.style.color = color;
         if (console.rows.length > 10)
           console.deleteRow(0);
       }
@@ -108,7 +146,6 @@
         }
         spendResources(recipes[recipe].cost, multiplier);
         getResources(recipes[recipe].production, multiplier);
-        log("Crafted " + recipe);
       }
 
       function haveResources ( itemset, multiplier = 1 ) {
@@ -120,7 +157,6 @@
         return have;
       }
       function getResources ( itemset, multiplier = 1 ) {
-        log("Got resources: " + JSON.stringify(itemset));
         Object.entries(itemset).forEach(([key, value]) => {
           resources[key] += value * multiplier;
           document.getElementById("amount-" + key).innerHTML = resources[key];
@@ -178,10 +214,32 @@
     <h3>Inventory</h3>
     <table style="margin-left:auto; margin-right:auto">
       <tr>
-        <td>Energy <small id="amount-energy">0</small></td>
+        <td>Energy</td><td><small id="amount-energy">0</small></td>
       </tr>
       <tr>
-        <td>Shale <small id="amount-shale">0</small></td><td><button onclick="craft('shaleManual')">+</button></td>
+        <td>Limestone</td><td><small id="amount-limestone">0</small></td><td><button onclick="craft('limestoneManual')">+</button></td><td><button onclick="triggerEvent('limestoneHelp')">?</button></td>
+      <tr>
+      <tr>
+        <td>Sandstone</td><td><small id="amount-sandstone">0</small></td><td><button onclick="craft('sandstoneManual')">+</button></td><td><button onclick="triggerEvent('sandstoneHelp')">?</button></td>
+      </tr>
+      <tr>
+        <td>Shale</td><td><small id="amount-shale">0</small></td><td><button onclick="craft('shaleManual')">+</button></td><td><button onclick="triggerEvent('shaleHelp')">?</button></td>
+      <tr>
+      <tr>
+        <td>Water</td><td><small id="amount-water">0</small></td><td><button onclick="craft('waterManual')">+</button></td><td><button onclick="triggerEvent('waterHelp')">?</button></td>
+      </tr>
+      <tr>
+        <td>Wood</td><td><small id="amount-wood">0</small></td><td><button onclick="craft('woodManual')">+</button></td><td><button onclick="triggerEvent('woodHelp')">?</button></td>
+      <tr>
+
+      <tr>
+        <td>Crushed shale</td><td><small id="amount-crushedShale">0</small></td><td><button onclick="craft('crushedShaleManual')">+</button></td><td><button onclick="triggerEvent('crushedShaleHelp')">?</button></td>
+
+      <tr>
+        <td>Silica sand</td><td><small id="amount-silicaSand">0</small></td><td><button onclick="craft('silicaSandManual')">+</button></td><td><button onclick="triggerEvent('silicaSandHelp')">?</button></td>
+      <tr>
+      <tr>
+        <td>Clay</td><td><small id="amount-clay">0</small></td><td><button onclick="craft('clayManual')">+</button></td><td><button onclick="triggerEvent('clayHelp')">?</button></td>
       <tr>
     </table>
 

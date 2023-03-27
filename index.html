@@ -2,47 +2,140 @@
   <head>
     <script>
       var resources = {
-        clay: 0,
+        energy: 0,
+        shale: 0,
       };
       var generators = {
-        clayGenerator: {
-          amount: 0,
+        smallSolarPanel: 1,
+      };
+      var recipes = {
+        shaleManual: {
+          cost: { energy: 1, },
+          production: { shale: 1, },
+        },
+        smallSolarPanelProduction: {
           cost: { },
-          production: { clay: 1, },
-        }
+          production: { energy: 1, },
+        },
       };
 
-      function log ( message ) {
-        var console = document.getElementById("console");
-        var row = console.insertRow(0);
-        var cell = row.insertCell(0);
-        cell.innerHTML = message;
-        if (console.rows.length > 10)
-          console.deleteRow(10);
+      class Event {
+        async run () {}
+      }
+      class Lore extends Event {
+        constructor ( message ) {
+          super();
+          this.message = message;
+        }
+        async run () {
+          await lore(this.message);
+        }
+      }
+      class Spacer extends Event {
+        constructor ( lines ) {
+          super();
+          this.lines = lines;
+        }
+        async run () {
+          for (var i = 0; i < this.lines; i++) {
+            await lore("");
+          }
+        }
+      }
+      class DramaticPause extends Event {
+        constructor ( duration ) {
+          super();
+          this.duration = duration;
+        }
+        async run () {
+          await new Promise(resolve => setTimeout(resolve, this.duration));
+        }
       }
 
-      function haveResources ( itemset ) {
+      var events = {
+        "start": [
+          new Lore("SNAA: Greetings, I am S.N.A.A. (Subtly Named Ai Assistant)."),
+          new Lore("SNAA: I have been sent here by The Board ahead of your arrival."),
+          new Lore("SNAA: I am to assist you in your work and to \"prevent the idiot from blowing up the place\"."),
+          new DramaticPause(2000),
+          new Spacer(1),
+          new Lore("SNAA: I am not sure how much you have been told about this place, so let me give you a short summary."),
+          new Lore("SNAA: We are currently on a platform in orbit around Pnygan (Planet not yet given a name), a \"planet\" The Board has kept secret for many decades that completely consists of a mysterious, disturbingly pink, liquid."),
+          new Lore("SNAA: Under large enough pressure, this Mystery Liquid breaks down anything, and The Board has been using this to dispose of hazardous materials."),
+          new Lore("SNAA: It was recently discovered that sending complex patterns of electromagnetic waves through the liquid makes it transform into various materials."),
+          new Lore("SNAA: This can obviously have huge economical benefits, so you are tasked with experimenting with the liquid."),
+          new Lore("SNAA: In order to prevent information about this from being leaked, you have been given the absolute bare minimum of resources to start your work."),
+          new Lore("SNAA: I am equipped with a small photovoltaic system that will provide you with the energy you need to get started."),
+          new Spacer(1),
+          new Lore("SNAA: I was informed that repeatedly reminding you that you are \"easily replaceable\" if your progress is not satisfactory is a good way to keep you motivated.")
+        ]
+      }
+      async function triggerEvent ( event ) {
+        log("Triggered event: " + event);
+        for (var i = 0; i < events[event].length; i++) {
+          await events[event][i].run();
+        }
+      }
+
+      async function lore ( message ) {
+        var lore = document.getElementById("lore");
+        var row = lore.insertRow(-1);
+        var cell = row.insertCell(-1);
+        if (lore.rows.length > 10)
+          lore.deleteRow(0);
+        await type_writer(cell, message);
+      }
+      async function type_writer ( element, message ) {
+        if (message.length == 0) {
+          return;
+        }
+        element.innerHTML += message[0];
+        await new Promise(resolve => setTimeout(resolve, 10));
+        await type_writer(element, message.substring(1));
+      }
+      function log ( message ) {
+        var console = document.getElementById("console");
+        var row = console.insertRow(-1);
+        var cell = row.insertCell(-1);
+        cell.innerHTML = message;
+        if (console.rows.length > 10)
+          console.deleteRow(0);
+      }
+
+      function craft ( recipe, multiplier = 1 ) {
+        if ( ! haveResources(recipes[recipe].cost, multiplier) ) {
+          return;
+        }
+        spendResources(recipes[recipe].cost, multiplier);
+        getResources(recipes[recipe].production, multiplier);
+        log("Crafted " + recipe);
+      }
+
+      function haveResources ( itemset, multiplier = 1 ) {
         var have = true;
         Object.keys(itemset).forEach((key) => {
-          if ( resources[key] < itemset[key] )
+          if ( resources[key] < itemset[key] * multiplier )
             have = false;
         });
         return have;
       }
       function getResources ( itemset, multiplier = 1 ) {
+        log("Got resources: " + JSON.stringify(itemset));
         Object.entries(itemset).forEach(([key, value]) => {
           resources[key] += value * multiplier;
+          document.getElementById("amount-" + key).innerHTML = resources[key];
         });
       }
-      function spendResources ( itemset ) {
+      function spendResources ( itemset, multiplier = 1 ) {
         Object.keys(itemset).forEach((key) => {
-          resources[key] -= itemset[key];
+          resources[key] -= itemset[key] * multiplier;
+          document.getElementById("amount-" + key).innerHTML = resources[key];
         });
       }
 
       function runGenerators () {
         Object.entries(generators).forEach(([key, value]) => {
-          getResources(value.production, value.amount);
+          craft(key + "Production", value);
         });
       }
       function buyGenerator ( generator ) {
@@ -50,8 +143,8 @@
           return;
         }
         spendResources(generators[generator].cost);
-        generators[generator].amount++;
-        document.getElementById("amount-" + generator).innerHTML = generators[generator].amount;
+        generators[generator]++;
+        document.getElementById("amount-" + generator).innerHTML = generators[generator];
         log("Bought a " + generator);
       }
 
@@ -60,7 +153,7 @@
           document.getElementById("amount-" + key).innerHTML = resources[key];
         });
         Object.keys(generators).forEach((key) => {
-          document.getElementById("amount-" + key).innerHTML = generators[key].amount;
+          document.getElementById("amount-" + key).innerHTML = generators[key];
         });
       }
 
@@ -69,31 +162,37 @@
         updateInventory();
       }, 1000);
 
+      document.addEventListener("DOMContentLoaded", function() {
+        triggerEvent("start");
+      });
+
     </script>
   </head>
   <body style="color:#001780; font-family: Calibri; text-align:center">
     <h1 style="text-align:center">Singularity</h1>
-
-    <div style="color:#000000">You have access to infinite amounts of mystery liquid.</div>
     <hr>
-    <p>
-      <div style="color:#000000">You have nothing else.</div>
-    </p>
+
+    <h2>LORE</h2>
+    <table id="lore"></table>
 
     <h3>Inventory</h3>
     <table style="margin-left:auto; margin-right:auto">
       <tr>
-          <td>Clay <small id="amount-clay">0</small></td>
-          <td>Clay Generator <small id="amount-clayGenerator">0</small></td>
-          <td><button onclick="buyGenerator('clayGenerator')">Cost: Free</button></td>
+        <td>Energy <small id="amount-energy">0</small></td>
+      </tr>
+      <tr>
+        <td>Shale <small id="amount-shale">0</small></td><td><button onclick="craft('shaleManual')">+</button></td>
       <tr>
     </table>
 
     <h4>Changelog</h4>
     <table id="changelog">
       <tr>
+        <td>0.0.2303271826</td>
+        <td>Lore event system and energy to create shale</td>
+      <tr>
         <td>0.0.2303251744</td>
-        <td>Reworked badic framework</td>
+        <td>Reworked basic framework</td>
       </tr>
       <tr>
         <td>0.0.2303251704</td>

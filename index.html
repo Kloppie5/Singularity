@@ -3,16 +3,57 @@
     <script>
       var resources = {
         energy: 0,
+
+        limestone: 0,
+        sandstone: 0,
         shale: 0,
+        water: 0,
+        wood: 0,
+
+        crushedShale: 0,
+        silicaSand: 0,
+
+        clay: 0,
       };
       var generators = {
         smallSolarPanel: 1,
       };
       var recipes = {
+        limestoneManual: {
+          cost: { energy: 1, },
+          production: { limestone: 1, },
+        },
+        sandstoneManual: {
+          cost: { energy: 1, },
+          production: { sandstone: 1, },
+        },
         shaleManual: {
           cost: { energy: 1, },
           production: { shale: 1, },
         },
+        waterManual: {
+          cost: { energy: 1, },
+          production: { water: 1, },
+        },
+        woodManual: {
+          cost: { energy: 1, },
+          production: { wood: 1, },
+        },
+
+        crushedShaleManual: {
+          cost: { shale: 1, },
+          production: { crushedShale: 1, },
+        },
+        silicaSandManual: {
+          cost: { sandstone: 1, },
+          production: { silicaSand: 1, },
+        },
+
+        clayManual: {
+          cost: { crushedShale: 1, water: 1, },
+          production: { clay: 1, },
+        },
+
         smallSolarPanelProduction: {
           cost: { },
           production: { energy: 1, },
@@ -217,29 +258,29 @@
         <td>Energy</td><td><small id="amount-energy">0</small></td>
       </tr>
       <tr>
-        <td>Limestone</td><td><small id="amount-limestone">0</small></td><td><button onclick="craft('limestoneManual')">+</button></td><td><button onclick="triggerEvent('limestoneHelp')">?</button></td>
+        <td>Limestone</td><td><small id="amount-limestone">0</small></td><td><button onclick="craft('limestoneManual')">+ (1 energy)</button></td><td><button onclick="triggerEvent('limestoneHelp')">?</button></td>
       <tr>
       <tr>
-        <td>Sandstone</td><td><small id="amount-sandstone">0</small></td><td><button onclick="craft('sandstoneManual')">+</button></td><td><button onclick="triggerEvent('sandstoneHelp')">?</button></td>
+        <td>Sandstone</td><td><small id="amount-sandstone">0</small></td><td><button onclick="craft('sandstoneManual')">+ (1 energy)</button></td><td><button onclick="triggerEvent('sandstoneHelp')">?</button></td>
       </tr>
       <tr>
-        <td>Shale</td><td><small id="amount-shale">0</small></td><td><button onclick="craft('shaleManual')">+</button></td><td><button onclick="triggerEvent('shaleHelp')">?</button></td>
+        <td>Shale</td><td><small id="amount-shale">0</small></td><td><button onclick="craft('shaleManual')">+ (1 energy)</button></td><td><button onclick="triggerEvent('shaleHelp')">?</button></td>
       <tr>
       <tr>
-        <td>Water</td><td><small id="amount-water">0</small></td><td><button onclick="craft('waterManual')">+</button></td><td><button onclick="triggerEvent('waterHelp')">?</button></td>
+        <td>Water</td><td><small id="amount-water">0</small></td><td><button onclick="craft('waterManual')">+ (1 energy)</button></td><td><button onclick="triggerEvent('waterHelp')">?</button></td>
       </tr>
       <tr>
-        <td>Wood</td><td><small id="amount-wood">0</small></td><td><button onclick="craft('woodManual')">+</button></td><td><button onclick="triggerEvent('woodHelp')">?</button></td>
+        <td>Wood</td><td><small id="amount-wood">0</small></td><td><button onclick="craft('woodManual')">+ (1 energy)</button></td><td><button onclick="triggerEvent('woodHelp')">?</button></td>
       <tr>
 
       <tr>
-        <td>Crushed shale</td><td><small id="amount-crushedShale">0</small></td><td><button onclick="craft('crushedShaleManual')">+</button></td><td><button onclick="triggerEvent('crushedShaleHelp')">?</button></td>
-
+        <td>Crushed shale</td><td><small id="amount-crushedShale">0</small></td><td><button onclick="craft('crushedShaleManual')">+ (1 shale)</button></td><td><button onclick="triggerEvent('crushedShaleHelp')">?</button></td>
+      </tr>
       <tr>
-        <td>Silica sand</td><td><small id="amount-silicaSand">0</small></td><td><button onclick="craft('silicaSandManual')">+</button></td><td><button onclick="triggerEvent('silicaSandHelp')">?</button></td>
+        <td>Silica sand</td><td><small id="amount-silicaSand">0</small></td><td><button onclick="craft('silicaSandManual')">+ (1 sandstone)</button></td><td><button onclick="triggerEvent('silicaSandHelp')">?</button></td>
       <tr>
       <tr>
-        <td>Clay</td><td><small id="amount-clay">0</small></td><td><button onclick="craft('clayManual')">+</button></td><td><button onclick="triggerEvent('clayHelp')">?</button></td>
+        <td>Clay</td><td><small id="amount-clay">0</small></td><td><button onclick="craft('clayManual')">+ (1 crushed shale and 1 water)</button></td><td><button onclick="triggerEvent('clayHelp')">?</button></td>
       <tr>
     </table>
 

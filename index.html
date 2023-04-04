@@ -1,5 +1,18 @@
 <html>
   <head>
+    <style>
+      #inventory {
+        position: relative;
+        width: 100%;
+        height: 400px;
+      }
+      .inventory-cell {
+        position: absolute;
+        top: 0;
+        left: 0;
+        cursor: move;
+      }
+    </style>
     <script>
       var resources = {
         energy: 0,
@@ -241,7 +254,47 @@
 
       document.addEventListener("DOMContentLoaded", function() {
         triggerEvent("start");
+
+        document.querySelectorAll(".inventory-cell").forEach((cell) => {
+          console.log(cell);
+          cell.addEventListener("mousedown", dragInventoryCellStart);
+        });
       });
+
+      var dragStartX, dragStartY, offsetX, offsetY;
+      function dragInventoryCellStart ( e ) {
+        log("Drag start");
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        offsetX = parseInt(window.getComputedStyle(this).left);
+        offsetY = parseInt(window.getComputedStyle(this).top);
+        this.addEventListener("mousemove", dragInventoryCell);
+        this.addEventListener("mouseup", dragInventoryCellEnd);
+      }
+      function dragInventoryCell ( e ) {
+        log("Drag");
+        var parentRect = document.getElementById("inventory").getBoundingClientRect();
+        var draggableRect = this.getBoundingClientRect();
+
+        var newLeft = offsetX + e.clientX - dragStartX;
+        if (newLeft < parentRect.left)
+          newLeft = parentRect.left;
+        else if (newLeft > parentRect.right - draggableRect.width)
+          newLeft = parentRect.right - draggableRect.width;
+          this.style.left = newLeft + "px";
+
+        var newTop = offsetY + e.clientY - dragStartY;
+        if (newTop < parentRect.top)
+          newTop = parentRect.top;
+        else if (newTop > parentRect.bottom - draggableRect.height)
+          newTop = parentRect.bottom - draggableRect.height;
+          this.style.top = newTop + "px";
+      }
+      function dragInventoryCellEnd ( ) {
+        log("Drag end");
+        this.removeEventListener("mousemove", dragInventoryCell);
+        this.removeEventListener("mouseup", dragInventoryCellEnd);
+      }
 
     </script>
   </head>
@@ -253,6 +306,11 @@
     <table id="lore"></table>
 
     <h3>Inventory</h3>
+    <div id="inventory" style="outline: 1px solid black">
+      <div class="inventory-cell" style="outline: 1px solid black">
+        Energy: <small id="amount-energy">0</small>
+      </div>
+    </div>
     <table style="margin-left:auto; margin-right:auto">
       <tr>
         <td>Energy</td><td><small id="amount-energy">0</small></td>
